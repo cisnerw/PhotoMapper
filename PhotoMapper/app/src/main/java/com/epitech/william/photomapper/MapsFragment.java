@@ -3,6 +3,8 @@ package com.epitech.william.photomapper;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,13 +14,20 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapsFragment extends Fragment {
 
     private static final float MAP_CAMERA_ZOOM = 15;
+
+    private List<LocatedPicture> mLocatedPictureList;
+    private LocatedPictureAdapter mLocatedPictureAdapter;
+    private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLinearLayoutManager;
     private FragmentActivity mFragmentActivity;
     private LinearLayout mLinearLayout;
     private MapView mMapView;
@@ -33,10 +42,16 @@ public class MapsFragment extends Fragment {
         mLinearLayout = (LinearLayout) inflater.inflate(R.layout.fragment_maps, container, false);
         mLocationHandler = LocationHandler.getInstance();
         mLocationHandler.init(mFragmentActivity);
-
         mMapView = (MapView) mLinearLayout.findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);
-
+        mRecyclerView = (RecyclerView) mLinearLayout.findViewById(R.id.photoList);
+        mLinearLayoutManager = new LinearLayoutManager(mFragmentActivity);
+        mLinearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
+        mLocatedPictureList = new ArrayList<>();
+        
+        upLocatedPictureList();
+        setUpRecyclerView();
         setUpMapIfNeeded();
 
         return mLinearLayout;
@@ -61,21 +76,18 @@ public class MapsFragment extends Fragment {
         setUpMapIfNeeded();
     }
 
-    /**
-     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
-     * installed) and the map has not already been instantiated.. This will ensure that we only ever
-     * call {@link #setUpMap()} once when {@link #mMap} is not null.
-     * <p/>
-     * If it isn't installed {@link SupportMapFragment} (and
-     * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
-     * install/update the Google Play services APK on their device.
-     * <p/>
-     * A user can return to this FragmentActivity after following the prompt and correctly
-     * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
-     * have been completely destroyed during this process (it is likely that it would only be
-     * stopped or paused), {@link #onCreate(android.os.Bundle)} may not be called again so we should call this
-     * method in {@link #onResume()} to guarantee that it will be called.
+    /*
+    ** get picture list from local data base
      */
+    private void upLocatedPictureList() {
+        mLocatedPictureList.clear();
+    }
+
+    private void setUpRecyclerView() {
+        mLocatedPictureAdapter = new LocatedPictureAdapter(mLocatedPictureList);
+        mRecyclerView.setAdapter(mLocatedPictureAdapter);
+    }
+
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
@@ -87,11 +99,6 @@ public class MapsFragment extends Fragment {
         }
     }
 
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
     private void setUpMap() {
         LatLng coordinate = mLocationHandler.getCoordinate();
         // Enable location button and set my location marker
@@ -101,6 +108,11 @@ public class MapsFragment extends Fragment {
         MapsInitializer.initialize(this.getActivity());
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinate, MAP_CAMERA_ZOOM));
+
+        for (LocatedPicture item : mLocatedPictureList) {
+            LatLng itemCd = new LatLng(item.mLatitude,item.mLongitude);
+            setNewMarker(itemCd, String.valueOf(item.mId));
+        }
     }
 
     private void setNewMarker(LatLng coordinate, String title) {
