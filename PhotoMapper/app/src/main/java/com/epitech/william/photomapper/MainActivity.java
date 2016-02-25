@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity
     private static final int TAKE_PICTURE = 1;
     private static final String IMAGE_FORMAT = ".jpg";
     private static final String PATH_SEPARATOR = "/";
+    private static final String CHOOSER_WINDOW_TITLE = "";
     private String currentPhotoPath;
     private final String dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
 
@@ -100,17 +101,18 @@ public class MainActivity extends AppCompatActivity
             takePicture();
             setTitle(R.string.menu_picture);
         } else if (id == R.id.nav_gallery) {
+            openGallery();
             setTitle(R.string.menu_gallery);
         } else if (id == R.id.nav_map) {
             fragmentClass = MapsFragment.class;
             try {
                 fragment = (Fragment) fragmentClass.newInstance();
             } catch (Exception e) {}
-
             setTitle(R.string.menu_map);
         } else if (id == R.id.nav_manage) {
             setTitle(R.string.menu_tools);
         } else if (id == R.id.nav_share) {
+            share();
             setTitle(R.string.menu_share);
         } else if (id == R.id.nav_send) {
             setTitle(R.string.menu_send);
@@ -123,6 +125,23 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void share() {
+        String message = "Text I want to share.";
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("text/plain");
+        share.putExtra(Intent.EXTRA_TEXT, message);
+
+        startActivity(Intent.createChooser(share, CHOOSER_WINDOW_TITLE));
+    }
+
+    private void openGallery() {
+        Intent intent = new Intent();
+        intent.setAction(android.content.Intent.ACTION_VIEW);
+        intent.setType("image/*");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     private void takePicture() {
