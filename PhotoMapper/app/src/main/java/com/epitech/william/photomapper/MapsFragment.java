@@ -77,9 +77,10 @@ public class MapsFragment extends Fragment {
     }
 
     /*
-    ** get picture list from local data base
+    ** update picture list from local database
      */
     private void upLocatedPictureList() {
+        //TODO: get the picture list from the database
         mLocatedPictureList.clear();
     }
 

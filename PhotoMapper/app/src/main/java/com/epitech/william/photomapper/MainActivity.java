@@ -1,6 +1,9 @@
 package com.epitech.william.photomapper;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -15,8 +18,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private static final int TAKE_PICTURE = 1;
+    private static final String IMAGE_FORMAT = ".jpg";
+    private static final String PATH_SEPARATOR = "/";
+    private String currentPhotoPath;
+    private final String dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +47,8 @@ public class MainActivity extends AppCompatActivity
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -85,7 +97,7 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = null;
         Class fragmentClass;
         if (id == R.id.nav_camera) {
-            // Handle the camera action
+            takePicture();
             setTitle(R.string.menu_picture);
         } else if (id == R.id.nav_gallery) {
             setTitle(R.string.menu_gallery);
@@ -104,7 +116,6 @@ public class MainActivity extends AppCompatActivity
             setTitle(R.string.menu_send);
         }
 
-
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragment != null)
             fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
@@ -113,4 +124,27 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private void takePicture() {
+        //TODO: get the nextId from DataBase manager.
+        int nextId = 0;
+        currentPhotoPath = dir + PATH_SEPARATOR + String.valueOf(nextId) + IMAGE_FORMAT;
+
+        // Handle the camera action
+        // create intent with ACTION_IMAGE_CAPTURE action
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, currentPhotoPath);
+        // start camera activity
+        startActivityForResult(intent, TAKE_PICTURE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
+        if (requestCode == TAKE_PICTURE && resultCode== RESULT_OK){
+            LatLng cd = LocationHandler.getInstance().getCoordinate();
+            //TODO: save the currentPhotoPath and the coordinate in database.
+        }
+    }
+
 }
