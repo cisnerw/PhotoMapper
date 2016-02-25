@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="header_sub">Une nouvelle façon de prendre une photo</string>
+    <string name="menu_picture">Photo</string>
+    <string name="menu_gallery">Galerie</string>
+    <string name="menu_map">Carte</string>
+    <string name="menu_tools">Outils</string>
+    <string name="menu_title">Communiquer</string>
+    <string name="menu_share">Partager</string>
+    <string name="menu_send">Envoyer</string>
+</resources>
