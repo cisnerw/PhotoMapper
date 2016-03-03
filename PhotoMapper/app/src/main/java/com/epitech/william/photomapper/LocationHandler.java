@@ -7,7 +7,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -54,15 +56,21 @@ public class LocationHandler {
 
     public void init(Context context) {
         mLocationManager = (LocationManager) context.getSystemService(context.LOCATION_SERVICE);
-        Location location = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        if (location != null) {
-            mLatitude = location.getLatitude();
-            mLongitude = location.getLongitude();
-            mAltitude = location.getAltitude();
-            mAccuracy = location.getAccuracy();
+        try {
+            Location location = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if (location != null) {
+                mLatitude = location.getLatitude();
+                mLongitude = location.getLongitude();
+                mAltitude = location.getAltitude();
+                mAccuracy = location.getAccuracy();
+            }
+            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_REFRESH_TIME,
+                    LOCATION_REFRESH_DISTANCE, mLocationListener);
+        } catch (SecurityException e) {
+            Log.d("PhotoMapper", "Security Exception thrown :\n" + e.getLocalizedMessage());
+        } finally {
+
         }
-        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_REFRESH_TIME,
-                LOCATION_REFRESH_DISTANCE, mLocationListener);
     }
 
     public static LocationHandler getInstance() {

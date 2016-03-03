@@ -10,6 +10,7 @@ import android.widget.ImageView;
 
 import java.io.File;
 import java.util.List;
+import com.epitech.paul.photomapper.LocatedPicture;
 
 /**
  * Created by willi_000 on 25/02/2016.
@@ -34,7 +35,7 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
     @Override
     public void onBindViewHolder(LocatedPictureViewHolder holder, int position) {
         LocatedPicture locatedPicture = mList.get(position);
-        File imgFile = new File(locatedPicture.mPath);
+        File imgFile = new File(locatedPicture.getPicturePath());
         if (imgFile.exists()) {
             Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             holder.vImageView.setImageBitmap(bitmap);

@@ -20,6 +20,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.epitech.paul.photomapper.LocatedPicture;
+
 public class MapsFragment extends Fragment {
 
     private static final float MAP_CAMERA_ZOOM = 15;
@@ -111,8 +113,8 @@ public class MapsFragment extends Fragment {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinate, MAP_CAMERA_ZOOM));
 
         for (LocatedPicture item : mLocatedPictureList) {
-            LatLng itemCd = new LatLng(item.mLatitude,item.mLongitude);
-            setNewMarker(itemCd, String.valueOf(item.mId));
+            LatLng itemCd = new LatLng(item.getLatitude(),item.getLongitude());
+            setNewMarker(itemCd, String.valueOf(item.getTitle()));
         }
     }
 
