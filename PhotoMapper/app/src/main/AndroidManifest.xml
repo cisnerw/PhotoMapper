@@ -16,8 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!--<meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_key" />-->
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_key_paul" />
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_key" />
+        <!--<meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_key_paul" />-->
 
         <meta-data
             android:name="com.google.android.gms.version"
