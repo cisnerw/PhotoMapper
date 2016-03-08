@@ -145,10 +145,12 @@ public class DatabaseHandler extends SQLiteOpenHelper
         String countQuery = "SELECT  * FROM " + TABLE_PICTURES;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
+
+        int count = cursor.getCount();
         cursor.close();
 
         // return count
-        return cursor.getCount();
+        return count;
     }
 
     public int updatePicture(LocatedPicture locatedPicture)
