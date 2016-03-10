@@ -118,6 +118,12 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    public void gotoMap()
+    {
+        Fragment fragment = getFragmentFromMenuId(R.id.nav_map);
+        changeCurrentFragment(fragment);
+    }
+
     private void changeCurrentFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
 

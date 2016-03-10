@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,6 +127,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
+
                 LocatedPicture locatedPicture = new LocatedPicture(
                         cursor.getString(5),
                         cursor.getString(1),
@@ -133,7 +135,15 @@ public class DatabaseHandler extends SQLiteOpenHelper
                         Double.parseDouble(cursor.getString(3)),
                         Double.parseDouble(cursor.getString(4)));
 
-                picturesList.add(locatedPicture);
+                File imgFile = new File(cursor.getString(5));
+                if (imgFile.exists() == false)
+                {
+                    deletePicture(locatedPicture);
+                }
+                else
+                {
+                    picturesList.add(locatedPicture);
+                }
             } while (cursor.moveToNext());
         }
 

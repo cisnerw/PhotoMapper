@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.epitech.william.photomapper.MainActivity;
 import com.epitech.william.photomapper.R;
 import com.epitech.paul.photomapper.dummy.DummyContent;
 import com.epitech.paul.photomapper.dummy.DummyContent.DummyItem;
@@ -60,6 +61,9 @@ public class LocatedPictureFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_locatedpicture_list, container, false);
+
+//        MainActivity mainActivity = (MainActivity) super.getActivity();
+//        mainActivity.gotoMap();
 
         // Set the adapter
         if (view instanceof RecyclerView) {
