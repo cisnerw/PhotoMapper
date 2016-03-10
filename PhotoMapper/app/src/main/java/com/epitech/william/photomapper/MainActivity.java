@@ -19,10 +19,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.epitech.paul.photomapper.DatabaseHandler;
+import com.epitech.paul.photomapper.dummy.DummyContent;
 import com.google.android.gms.maps.model.LatLng;
+import com.epitech.paul.photomapper.LocatedPictureFragment;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        LocatedPictureFragment.OnListFragmentInteractionListener {
 
     private static final int TAKE_PICTURE = 1;
     private static final String IMAGE_FORMAT = ".jpg";
@@ -104,13 +107,19 @@ public class MainActivity extends AppCompatActivity
             takePicture();
             setTitle(R.string.menu_picture);
         } else if (id == R.id.nav_gallery) {
-            openGallery();
+            //openGallery();
+            fragmentClass = LocatedPictureFragment.class;
+            try {
+                fragment = (Fragment) fragmentClass.newInstance();
+            } catch (Exception e) {
+            }
             setTitle(R.string.menu_gallery);
         } else if (id == R.id.nav_map) {
             fragmentClass = MapsFragment.class;
             try {
                 fragment = (Fragment) fragmentClass.newInstance();
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
             setTitle(R.string.menu_map);
         } else if (id == R.id.nav_manage) {
             setTitle(R.string.menu_tools);
@@ -163,10 +172,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
-        if (requestCode == TAKE_PICTURE && resultCode== RESULT_OK){
+        if (requestCode == TAKE_PICTURE && resultCode == RESULT_OK) {
             LatLng cd = LocationHandler.getInstance().getCoordinate();
             //TODO: save the currentPhotoPath and the coordinate in database.
         }
+    }
+
+    public void onListFragmentInteraction(DummyContent.DummyItem uri){
+        //you can leave it empty
     }
 
 }
