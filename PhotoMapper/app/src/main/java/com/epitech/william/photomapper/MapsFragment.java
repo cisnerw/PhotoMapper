@@ -1,5 +1,6 @@
 package com.epitech.william.photomapper;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.epitech.paul.photomapper.DatabaseHandler;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -33,24 +35,24 @@ public class MapsFragment extends Fragment {
     private FragmentActivity mFragmentActivity;
     private LinearLayout mLinearLayout;
     private MapView mMapView;
-    private LocationHandler mLocationHandler;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setRetainInstance(true);
         mFragmentActivity = super.getActivity();
         mLinearLayout = (LinearLayout) inflater.inflate(R.layout.fragment_maps, container, false);
-        mLocationHandler = LocationHandler.getInstance();
-        mLocationHandler.init(mFragmentActivity);
         mMapView = (MapView) mLinearLayout.findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);
         mRecyclerView = (RecyclerView) mLinearLayout.findViewById(R.id.photoList);
         mLinearLayoutManager = new LinearLayoutManager(mFragmentActivity);
-        mLinearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mLinearLayoutManager.setOrientation(LinearLayout.HORIZONTAL);
+        } else {
+            mLinearLayoutManager.setOrientation(LinearLayout.VERTICAL);
+        }
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mLocatedPictureList = new ArrayList<>();
         
         upLocatedPictureList();
         setUpRecyclerView();
@@ -83,7 +85,7 @@ public class MapsFragment extends Fragment {
      */
     private void upLocatedPictureList() {
         //TODO: get the picture list from the database
-        mLocatedPictureList.clear();
+        mLocatedPictureList = DatabaseHandler.getInstance().getAllPictures();
     }
 
     private void setUpRecyclerView() {
@@ -103,7 +105,7 @@ public class MapsFragment extends Fragment {
     }
 
     private void setUpMap() {
-        LatLng coordinate = mLocationHandler.getCoordinate();
+        LatLng coordinate = LocationHandler.getInstance().getCoordinate();
         // Enable location button and set my location marker
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.setMyLocationEnabled(true);
@@ -114,7 +116,7 @@ public class MapsFragment extends Fragment {
 
         for (LocatedPicture item : mLocatedPictureList) {
             LatLng itemCd = new LatLng(item.getLatitude(),item.getLongitude());
-            setNewMarker(itemCd, String.valueOf(item.getTitle()));
+            setNewMarker(itemCd, item.getTitle());
         }
     }
 

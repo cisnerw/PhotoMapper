@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.io.File;
 import java.util.List;
@@ -37,8 +38,9 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
         LocatedPicture locatedPicture = mList.get(position);
         File imgFile = new File(locatedPicture.getPicturePath());
         if (imgFile.exists()) {
-            Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            Bitmap bitmap = BitmapFactory.decodeFile(locatedPicture.getPicturePath());
             holder.vImageView.setImageBitmap(bitmap);
+            holder.vTextView.setText(locatedPicture.getTitle());
         }
     }
 
@@ -50,9 +52,11 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
     public static class LocatedPictureViewHolder extends RecyclerView.ViewHolder {
 
         protected ImageView vImageView;
+        protected TextView vTextView;
         public LocatedPictureViewHolder(View itemView) {
             super(itemView);
             vImageView = (ImageView) itemView.findViewById(R.id.item_img);
+            vTextView = (TextView) itemView.findViewById(R.id.item_title);
         }
     }
 }

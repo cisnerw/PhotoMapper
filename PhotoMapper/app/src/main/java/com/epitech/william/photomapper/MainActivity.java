@@ -1,6 +1,9 @@
 package com.epitech.william.photomapper;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -17,22 +20,28 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import com.epitech.paul.photomapper.DatabaseHandler;
 import com.epitech.paul.photomapper.dummy.DummyContent;
+import com.epitech.paul.photomapper.LocatedPicture;
 import com.google.android.gms.maps.model.LatLng;
 import com.epitech.paul.photomapper.LocatedPictureFragment;
+
+import java.io.File;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         LocatedPictureFragment.OnListFragmentInteractionListener {
 
+    private Fragment mCurrentFragment = null;
     private static final int TAKE_PICTURE = 1;
     private static final String IMAGE_FORMAT = ".jpg";
-    private static final String PATH_SEPARATOR = "/";
     private static final String CHOOSER_WINDOW_TITLE = "";
-    private String currentPhotoPath;
-    private final String dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+    private static final String IMAGE_NAME = "image_";
+    private static String mCurrentPhotoPath;
+    private static String mCurrentFileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +49,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        LocationHandler.getInstance().init(this);
 
         new DatabaseHandler(this); // instanciate db singleton
 
@@ -101,11 +111,30 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        Fragment fragment = getFragmentFromMenuId(id);
+        changeCurrentFragment(fragment);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    private void changeCurrentFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        if (mCurrentFragment != null) {
+            fragmentManager.beginTransaction().remove(mCurrentFragment).commit();
+        }
+        if (fragment != null) {
+            fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
+            mCurrentFragment = fragment;
+        }
+    }
+
+    private Fragment getFragmentFromMenuId(int id) {
         Fragment fragment = null;
         Class fragmentClass;
         if (id == R.id.nav_camera) {
             takePicture();
-            setTitle(R.string.menu_picture);
         } else if (id == R.id.nav_gallery) {
             //openGallery();
             fragmentClass = LocatedPictureFragment.class;
@@ -113,30 +142,20 @@ public class MainActivity extends AppCompatActivity
                 fragment = (Fragment) fragmentClass.newInstance();
             } catch (Exception e) {
             }
-            setTitle(R.string.menu_gallery);
         } else if (id == R.id.nav_map) {
             fragmentClass = MapsFragment.class;
             try {
                 fragment = (Fragment) fragmentClass.newInstance();
             } catch (Exception e) {
             }
-            setTitle(R.string.menu_map);
         } else if (id == R.id.nav_manage) {
-            setTitle(R.string.menu_tools);
+
         } else if (id == R.id.nav_share) {
             share();
-            setTitle(R.string.menu_share);
         } else if (id == R.id.nav_send) {
-            setTitle(R.string.menu_send);
+
         }
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        if (fragment != null)
-            fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
+        return fragment;
     }
 
     private void share() {
@@ -156,28 +175,60 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        int nextid = DatabaseHandler.getInstance().getPicturesCount();
+        mCurrentFileName = IMAGE_NAME + String.valueOf(nextid);
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                mCurrentFileName,   /* prefix */
+                IMAGE_FORMAT,       /* suffix */
+                storageDir          /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
     private void takePicture() {
         //TODO: get the nextId from DataBase manager.
-        int nextId = 0;
-        currentPhotoPath = dir + PATH_SEPARATOR + String.valueOf(nextId) + IMAGE_FORMAT;
-
-        // Handle the camera action
-        // create intent with ACTION_IMAGE_CAPTURE action
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, currentPhotoPath);
-        // start camera activity
-        startActivityForResult(intent, TAKE_PICTURE);
+        File photoFile = null;
+        try {
+            photoFile = createImageFile();
+        } catch (IOException ex) {
+            // Error occurred while creating the File
+        }
+        if (photoFile != null) {
+            // Handle the camera action
+            // create intent with ACTION_IMAGE_CAPTURE action
+            intent.putExtra(MediaStore.EXTRA_OUTPUT,
+                    Uri.fromFile(photoFile));
+            // start camera activity
+            startActivityForResult(intent, TAKE_PICTURE);
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
         if (requestCode == TAKE_PICTURE && resultCode == RESULT_OK) {
-            LatLng cd = LocationHandler.getInstance().getCoordinate();
+            File imgFile = new File(mCurrentPhotoPath);
             //TODO: save the currentPhotoPath and the coordinate in database.
+            LatLng cd = LocationHandler.getInstance().getCoordinate();
+            if (imgFile.exists()) {
+                LocatedPicture newPicture = new LocatedPicture(
+                        mCurrentPhotoPath,
+                        mCurrentFileName,
+                        null,
+                        cd.longitude,
+                        cd.latitude);
+                DatabaseHandler.getInstance().addPicture(newPicture);
+            }
         }
     }
-
     public void onListFragmentInteraction(DummyContent.DummyItem uri){
         //you can leave it empty
     }
