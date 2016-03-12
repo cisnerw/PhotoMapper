@@ -23,7 +23,6 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.epitech.paul.photomapper.DatabaseHandler;
-import com.epitech.paul.photomapper.dummy.DummyContent;
 import com.epitech.paul.photomapper.LocatedPicture;
 import com.google.android.gms.maps.model.LatLng;
 import com.epitech.paul.photomapper.LocatedPictureFragment;
@@ -235,7 +234,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-    public void onListFragmentInteraction(DummyContent.DummyItem uri){
+    public void onListFragmentInteraction(LocatedPicture uri){
         //you can leave it empty
     }
 

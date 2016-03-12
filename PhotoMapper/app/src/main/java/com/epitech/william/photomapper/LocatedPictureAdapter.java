@@ -1,8 +1,10 @@
 package com.epitech.william.photomapper;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,8 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.util.List;
+
+import com.epitech.paul.photomapper.BitmapHelper;
 import com.epitech.paul.photomapper.LocatedPicture;
 
 /**
@@ -19,9 +23,11 @@ import com.epitech.paul.photomapper.LocatedPicture;
 public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAdapter.LocatedPictureViewHolder> {
 
     private List<LocatedPicture> mList;
+    private Resources mResources;
 
-    public LocatedPictureAdapter(List<LocatedPicture> list) {
+    public LocatedPictureAdapter(List<LocatedPicture> list, Resources resources) {
         mList = list;
+        mResources = resources;
     }
 
     @Override
@@ -38,14 +44,11 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
         LocatedPicture locatedPicture = mList.get(position);
         File imgFile = new File(locatedPicture.getPicturePath());
         if (imgFile.exists()) {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            Bitmap bitmap = BitmapFactory.decodeFile(locatedPicture.getPicturePath(), options);
-            options.inJustDecodeBounds = true;
+            Bitmap bitmap = BitmapFactory.decodeFile(locatedPicture.getPicturePath());
 
-            options.inScaled = true;
-            options.inDensity = options.outWidth / R.dimen.thumbnail_size;
-            options.inTargetDensity = 1;
-            bitmap = BitmapFactory.decodeFile(locatedPicture.getPicturePath(), options);
+            // Resize bitmap
+            bitmap = BitmapHelper.getResizedBitmap(bitmap, (int)mResources.getDimension(R.dimen.thumbnail_size));
+
             holder.vImageView.setImageBitmap(bitmap);
             holder.vTextView.setText(locatedPicture.getTitle());
         }

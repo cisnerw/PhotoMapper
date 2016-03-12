@@ -89,7 +89,7 @@ public class MapsFragment extends Fragment {
     }
 
     private void setUpRecyclerView() {
-        mLocatedPictureAdapter = new LocatedPictureAdapter(mLocatedPictureList);
+        mLocatedPictureAdapter = new LocatedPictureAdapter(mLocatedPictureList, getResources());
         mRecyclerView.setAdapter(mLocatedPictureAdapter);
     }
 

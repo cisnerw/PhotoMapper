@@ -1,6 +1,11 @@
 package com.epitech.paul.photomapper;
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
+import android.os.Debug;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,25 +15,27 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.epitech.paul.photomapper.LocatedPictureFragment.OnListFragmentInteractionListener;
-import com.epitech.paul.photomapper.dummy.DummyContent.DummyItem;
 
+import java.io.File;
 import java.util.List;
 import com.epitech.paul.photomapper.LocatedPictureFragment;
 import com.epitech.william.photomapper.R;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link LocatedPicture} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class MyLocatedPictureRecyclerViewAdapter extends RecyclerView.Adapter<MyLocatedPictureRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<LocatedPicture> mValues;
     private final OnListFragmentInteractionListener mListener;
+    private Resources mResources;
 
-    public MyLocatedPictureRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public MyLocatedPictureRecyclerViewAdapter(List<LocatedPicture> items, OnListFragmentInteractionListener listener, Resources resources) {
         mValues = items;
         mListener = listener;
+        mResources = resources;
     }
 
     @Override
@@ -40,11 +47,16 @@ public class MyLocatedPictureRecyclerViewAdapter extends RecyclerView.Adapter<My
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        Log.d("debug", mValues.get(position).content);
-        //holder.mContentView.setImageDrawable(Drawable.createFromPath(mValues.get(position).content));
-        holder.mContentView.setImageResource(R.drawable.ic_logo);
+        LocatedPicture item = mValues.get(position);
+        holder.mItem = item;
+        holder.mIdView.setText(item.getTitle());
+
+        File imgFile = new File(item.getPicturePath());
+        if (imgFile.exists()) {
+            Bitmap bitmap = BitmapFactory.decodeFile(item.getPicturePath());
+            bitmap = BitmapHelper.getResizedBitmap(bitmap, (int)mResources.getDimension(R.dimen.thumbnail_size));
+            holder.mContentView.setImageBitmap(bitmap);
+        }
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,7 +79,7 @@ public class MyLocatedPictureRecyclerViewAdapter extends RecyclerView.Adapter<My
         public final View mView;
         public final TextView mIdView;
         public final ImageView mContentView;
-        public DummyItem mItem;
+        public LocatedPicture mItem;
 
         public ViewHolder(View view) {
             super(view);
@@ -78,7 +90,7 @@ public class MyLocatedPictureRecyclerViewAdapter extends RecyclerView.Adapter<My
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mItem.id + "'";
+            return super.toString() + " '" + mItem.getTitle() + "'";
         }
     }
 }

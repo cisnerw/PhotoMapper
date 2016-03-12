@@ -12,8 +12,6 @@ import android.view.ViewGroup;
 
 import com.epitech.william.photomapper.MainActivity;
 import com.epitech.william.photomapper.R;
-import com.epitech.paul.photomapper.dummy.DummyContent;
-import com.epitech.paul.photomapper.dummy.DummyContent.DummyItem;
 
 import java.util.List;
 
@@ -28,7 +26,7 @@ public class LocatedPictureFragment extends Fragment {
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
-    private int mColumnCount = 3;
+    private int mColumnCount = 2;
     private OnListFragmentInteractionListener mListener;
 
     /**
@@ -74,7 +72,10 @@ public class LocatedPictureFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyLocatedPictureRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+
+            List<LocatedPicture> pictures = DatabaseHandler.getInstance().getAllPictures();
+
+            recyclerView.setAdapter(new MyLocatedPictureRecyclerViewAdapter(pictures, mListener, getResources()));
         }
         return view;
     }
@@ -109,6 +110,6 @@ public class LocatedPictureFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(LocatedPicture item);
     }
 }

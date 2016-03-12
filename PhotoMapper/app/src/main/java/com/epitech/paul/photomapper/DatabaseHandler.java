@@ -83,7 +83,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     }
 
     // Getting single picture
-    public LocatedPicture getContact(int id)
+    public LocatedPicture getLocatedPicture(int id)
     {
         SQLiteDatabase db = this.getReadableDatabase();
 
