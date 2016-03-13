@@ -24,6 +24,7 @@ import android.widget.ImageView;
 
 import com.epitech.paul.photomapper.DatabaseHandler;
 import com.epitech.paul.photomapper.LocatedPicture;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.epitech.paul.photomapper.LocatedPictureFragment;
 
@@ -117,9 +118,10 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void gotoMap()
+    public void gotoMap(LocatedPicture selectedPicture)
     {
-        Fragment fragment = getFragmentFromMenuId(R.id.nav_map);
+        MapsFragment fragment = (MapsFragment) getFragmentFromMenuId(R.id.nav_map);
+        fragment.setSelectedCoordinates(selectedPicture.getLatitude(), selectedPicture.getLongitude());
         changeCurrentFragment(fragment);
     }
 
@@ -234,8 +236,8 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-    public void onListFragmentInteraction(LocatedPicture uri){
-        //you can leave it empty
+    public void onListFragmentInteraction(LocatedPicture item){
+        gotoMap(item);
     }
 
 }

@@ -45,10 +45,12 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
         LocatedPicture locatedPicture = mList.get(position);
         File imgFile = new File(locatedPicture.getPicturePath());
         if (imgFile.exists()) {
-            Bitmap bitmap = BitmapFactory.decodeFile(locatedPicture.getPicturePath());
-
-            // Resize bitmap
-            bitmap = BitmapHelper.getResizedBitmap(bitmap, (int)mResources.getDimension(R.dimen.thumbnail_size));
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            Bitmap bitmap = BitmapFactory.decodeFile(locatedPicture.getPicturePath(), options);
+            options.inSampleSize = Math.max(1, (int)(options.outWidth / mResources.getDimension(R.dimen.thumbnail_size)));
+            options.inJustDecodeBounds = false;
+            bitmap = BitmapFactory.decodeFile(locatedPicture.getPicturePath(), options);
 
             holder.vImageView.setImageBitmap(bitmap);
             holder.vTextView.setText(locatedPicture.getTitle());
