@@ -24,6 +24,7 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
 
     private List<LocatedPicture> mList;
     private Resources mResources;
+    private static OnItemClickListener itemClickListener = null;
 
     public LocatedPictureAdapter(List<LocatedPicture> list, Resources resources) {
         mList = list;
@@ -54,19 +55,35 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
         }
     }
 
+    public void setItemClickListener(OnItemClickListener listener) {
+        itemClickListener = listener;
+    }
+
     @Override
     public int getItemCount() {
         return mList.size();
     }
 
-    public static class LocatedPictureViewHolder extends RecyclerView.ViewHolder {
+    public static class LocatedPictureViewHolder extends RecyclerView.ViewHolder
+    implements View.OnClickListener{
 
         protected ImageView vImageView;
         protected TextView vTextView;
         public LocatedPictureViewHolder(View itemView) {
             super(itemView);
+            itemView.setOnClickListener(this);
             vImageView = (ImageView) itemView.findViewById(R.id.item_img);
             vTextView = (TextView) itemView.findViewById(R.id.item_title);
         }
+
+        @Override
+        public void onClick(View view) {
+            if (itemClickListener != null)
+                itemClickListener.onItemClick(getPosition());
+        }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(int position);
     }
 }

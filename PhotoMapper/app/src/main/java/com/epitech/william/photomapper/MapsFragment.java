@@ -4,8 +4,10 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +18,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
@@ -35,6 +39,9 @@ public class MapsFragment extends Fragment {
     private FragmentActivity mFragmentActivity;
     private LinearLayout mLinearLayout;
     private MapView mMapView;
+    private List<Marker> markers;
+    private Marker selectedMarker = null;
+    private View selectedImage = null;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
     @Override
@@ -53,7 +60,9 @@ public class MapsFragment extends Fragment {
             mLinearLayoutManager.setOrientation(LinearLayout.VERTICAL);
         }
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        markers = new ArrayList<>();
+
         upLocatedPictureList();
         setUpRecyclerView();
         setUpMapIfNeeded();
@@ -90,6 +99,12 @@ public class MapsFragment extends Fragment {
 
     private void setUpRecyclerView() {
         mLocatedPictureAdapter = new LocatedPictureAdapter(mLocatedPictureList, getResources());
+        mLocatedPictureAdapter.setItemClickListener(new LocatedPictureAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                changeSelectedMarker(position);
+            }
+        });
         mRecyclerView.setAdapter(mLocatedPictureAdapter);
     }
 
@@ -101,6 +116,25 @@ public class MapsFragment extends Fragment {
                 mMap = mMapView.getMap();
             }
             setUpMap();
+        }
+    }
+
+    private void changeSelectedMarker(int position) {
+        View view = mRecyclerView.getChildAt(position);
+        Marker marker = markers.get(position);
+        if (selectedMarker != null)
+            selectedMarker.setIcon(BitmapDescriptorFactory.defaultMarker());
+        if (selectedImage != null)
+            selectedImage.setSelected(false);
+        if (selectedMarker != marker) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), MAP_CAMERA_ZOOM));
+            marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+            view.setSelected(true);
+            selectedImage = view;
+            selectedMarker = marker;
+        } else {
+            selectedMarker = null;
+            selectedImage = null;
         }
     }
 
@@ -121,6 +155,7 @@ public class MapsFragment extends Fragment {
     }
 
     private void setNewMarker(LatLng coordinate, String title) {
-        mMap.addMarker(new MarkerOptions().position(coordinate).title(title));
+        MarkerOptions marker = new MarkerOptions().position(coordinate).title(title);
+        markers.add(mMap.addMarker(marker));
     }
 }
