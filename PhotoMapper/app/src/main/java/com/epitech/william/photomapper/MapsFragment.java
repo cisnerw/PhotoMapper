@@ -71,9 +71,9 @@ public class MapsFragment extends Fragment {
 
             @Override
             public void onChildViewAttachedToWindow(View view) {
-                i++;
-                if (i >= mLocatedPictureList.size()) {
-                    if (mSelectedPosition == 0) {
+                ++i;
+                if (i == mLocatedPictureList.size()) {
+                    if (mSelectedPosition >= 0) {
                         changeSelectedMarker(mSelectedPosition);
                     }
                 }
@@ -81,7 +81,7 @@ public class MapsFragment extends Fragment {
 
             @Override
             public void onChildViewDetachedFromWindow(View view) {
-                i--;
+
             }
         });
 
@@ -167,6 +167,7 @@ public class MapsFragment extends Fragment {
         mMap.setMyLocationEnabled(true);
         // Needs to call MapsInitializer before doing any CameraUpdateFactory calls
         MapsInitializer.initialize(this.getActivity());
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinate, MAP_CAMERA_ZOOM));
 
         for (LocatedPicture item : mLocatedPictureList) {
             LatLng itemCd = new LatLng(item.getLatitude(),item.getLongitude());
@@ -177,10 +178,6 @@ public class MapsFragment extends Fragment {
     private void setNewMarker(LatLng coordinate, String title) {
         MarkerOptions marker = new MarkerOptions().position(coordinate).title(title);
         markers.add(mMap.addMarker(marker));
-    }
-
-    private void moveCamera(LatLng coordinate) {
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinate, MAP_CAMERA_ZOOM));
     }
 
     public void setSelectedPosition(int position) {
