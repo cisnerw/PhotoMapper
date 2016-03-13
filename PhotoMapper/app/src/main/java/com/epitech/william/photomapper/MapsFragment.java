@@ -1,5 +1,6 @@
 package com.epitech.william.photomapper;
 
+import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -65,6 +66,25 @@ public class MapsFragment extends Fragment {
         markers = new ArrayList<>();
 
         upLocatedPictureList();
+        mRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+            int i = 0;
+
+            @Override
+            public void onChildViewAttachedToWindow(View view) {
+                i++;
+                if (i >= mLocatedPictureList.size()) {
+                    if (mSelectedPosition == 0) {
+                        changeSelectedMarker(mSelectedPosition);
+                    }
+                }
+            }
+
+            @Override
+            public void onChildViewDetachedFromWindow(View view) {
+                i--;
+            }
+        });
+
         setUpRecyclerView();
         setUpMapIfNeeded();
 
@@ -121,7 +141,8 @@ public class MapsFragment extends Fragment {
     }
 
     private void changeSelectedMarker(int position) {
-        View view = mRecyclerView.findViewHolderForAdapterPosition(position).itemView;
+        RecyclerView.ViewHolder holder = mRecyclerView.findViewHolderForAdapterPosition(position);
+        View view = holder.itemView;
         Marker marker = markers.get(position);
         if (selectedMarker != null)
             selectedMarker.setIcon(BitmapDescriptorFactory.defaultMarker());
@@ -150,10 +171,6 @@ public class MapsFragment extends Fragment {
         for (LocatedPicture item : mLocatedPictureList) {
             LatLng itemCd = new LatLng(item.getLatitude(),item.getLongitude());
             setNewMarker(itemCd, item.getTitle());
-        }
-
-        if (mSelectedPosition >= 0) {
-            changeSelectedMarker(mSelectedPosition);
         }
     }
 
