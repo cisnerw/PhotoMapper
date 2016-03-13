@@ -53,8 +53,12 @@ public class MyLocatedPictureRecyclerViewAdapter extends RecyclerView.Adapter<My
 
         File imgFile = new File(item.getPicturePath());
         if (imgFile.exists()) {
-            Bitmap bitmap = BitmapFactory.decodeFile(item.getPicturePath());
-            bitmap = BitmapHelper.getResizedBitmap(bitmap, (int)mResources.getDimension(R.dimen.thumbnail_size));
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            Bitmap bitmap = BitmapFactory.decodeFile(item.getPicturePath(), options);
+            options.inSampleSize = Math.max(1, (int)(options.outWidth / mResources.getDimension(R.dimen.thumbnail_size)));
+            options.inJustDecodeBounds = false;
+            bitmap = BitmapFactory.decodeFile(item.getPicturePath(), options);
             holder.mContentView.setImageBitmap(bitmap);
         }
 
