@@ -121,7 +121,7 @@ public class MapsFragment extends Fragment {
     }
 
     private void changeSelectedMarker(int position) {
-        View view = mRecyclerView.getChildAt(position);
+        View view = mRecyclerView.findViewHolderForAdapterPosition(position).itemView;
         Marker marker = markers.get(position);
         if (selectedMarker != null)
             selectedMarker.setIcon(BitmapDescriptorFactory.defaultMarker());

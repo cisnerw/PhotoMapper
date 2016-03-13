@@ -81,7 +81,7 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
         @Override
         public void onClick(View view) {
             if (itemClickListener != null)
-                itemClickListener.onItemClick(getPosition());
+                itemClickListener.onItemClick(getAdapterPosition());
         }
     }
 
