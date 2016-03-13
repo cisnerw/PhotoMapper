@@ -43,7 +43,7 @@ public class MapsFragment extends Fragment {
     private Marker selectedMarker = null;
     private View selectedImage = null;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private int mSelectedPosition;
+    private int mSelectedPosition = -1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -121,7 +121,7 @@ public class MapsFragment extends Fragment {
     }
 
     private void changeSelectedMarker(int position) {
-        View view = mRecyclerView.getChildAt(position);
+        View view = mRecyclerView.findViewHolderForAdapterPosition(position).itemView;
         Marker marker = markers.get(position);
         if (selectedMarker != null)
             selectedMarker.setIcon(BitmapDescriptorFactory.defaultMarker());
@@ -147,20 +147,13 @@ public class MapsFragment extends Fragment {
         // Needs to call MapsInitializer before doing any CameraUpdateFactory calls
         MapsInitializer.initialize(this.getActivity());
 
-//        if (mSelectedCoordinates != null) {
-//            moveCamera(mSelectedCoordinates);
-//        }
-//        else {
-//            moveCamera(coordinate);
-//        }
-//
-//        mSelectedCoordinates = null;
-
-        // ici faire le moveCamera avec mSelectedPosition
-
         for (LocatedPicture item : mLocatedPictureList) {
             LatLng itemCd = new LatLng(item.getLatitude(),item.getLongitude());
             setNewMarker(itemCd, item.getTitle());
+        }
+
+        if (mSelectedPosition >= 0) {
+            changeSelectedMarker(mSelectedPosition);
         }
     }
 
