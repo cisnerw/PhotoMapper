@@ -1,14 +1,13 @@
 package com.epitech.william.photomapper;
 
-import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +31,7 @@ import com.epitech.paul.photomapper.LocatedPicture;
 public class MapsFragment extends Fragment {
 
     private static final float MAP_CAMERA_ZOOM = 15;
+    private static final long DELAYED = 50;
 
     private List<LocatedPicture> mLocatedPictureList;
     private LocatedPictureAdapter mLocatedPictureAdapter;
@@ -66,24 +66,6 @@ public class MapsFragment extends Fragment {
         markers = new ArrayList<>();
 
         upLocatedPictureList();
-        mRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
-            int i = 0;
-
-            @Override
-            public void onChildViewAttachedToWindow(View view) {
-                ++i;
-                if (i == mLocatedPictureList.size()) {
-                    if (mSelectedPosition >= 0) {
-                        changeSelectedMarker(mSelectedPosition);
-                    }
-                }
-            }
-
-            @Override
-            public void onChildViewDetachedFromWindow(View view) {
-
-            }
-        });
 
         setUpRecyclerView();
         setUpMapIfNeeded();
@@ -142,6 +124,10 @@ public class MapsFragment extends Fragment {
 
     private void changeSelectedMarker(int position) {
         RecyclerView.ViewHolder holder = mRecyclerView.findViewHolderForAdapterPosition(position);
+        if (holder == null) {
+            postDelayedMarkerChange(position);
+            return;
+        }
         View view = holder.itemView;
         Marker marker = markers.get(position);
         if (selectedMarker != null)
@@ -173,6 +159,22 @@ public class MapsFragment extends Fragment {
             LatLng itemCd = new LatLng(item.getLatitude(),item.getLongitude());
             setNewMarker(itemCd, item.getTitle());
         }
+
+        if (mSelectedPosition >= 0) {
+            postDelayedMarkerChange(mSelectedPosition);
+        }
+    }
+
+    private void postDelayedMarkerChange(final int position) {
+        Handler handler = new Handler();
+
+        mLinearLayoutManager.scrollToPositionWithOffset(position, 0);
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                changeSelectedMarker(position);
+            }
+        }, DELAYED);
     }
 
     private void setNewMarker(LatLng coordinate, String title) {
