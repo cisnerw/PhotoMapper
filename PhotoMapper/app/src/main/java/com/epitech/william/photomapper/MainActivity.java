@@ -33,7 +33,7 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        LocatedPictureFragment.OnListFragmentInteractionListener {
+        LocatedPictureAdapter.OnItemClickListener {
 
     private Fragment mCurrentFragment = null;
     private static final int TAKE_PICTURE = 1;
@@ -118,10 +118,10 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void gotoMap(LocatedPicture selectedPicture)
+    public void gotoMap(int position)
     {
         MapsFragment fragment = (MapsFragment) getFragmentFromMenuId(R.id.nav_map);
-        fragment.setSelectedCoordinates(selectedPicture.getLatitude(), selectedPicture.getLongitude());
+        fragment.setSelectedPosition(position);
         changeCurrentFragment(fragment);
     }
 
@@ -236,8 +236,8 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-    public void onListFragmentInteraction(LocatedPicture item){
-        gotoMap(item);
+    public void onItemClick(int position){
+        gotoMap(position);
     }
 
 }

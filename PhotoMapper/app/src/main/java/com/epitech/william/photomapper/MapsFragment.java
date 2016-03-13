@@ -43,7 +43,7 @@ public class MapsFragment extends Fragment {
     private Marker selectedMarker = null;
     private View selectedImage = null;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private LatLng mSelectedCoordinates;
+    private int mSelectedPosition;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -147,14 +147,16 @@ public class MapsFragment extends Fragment {
         // Needs to call MapsInitializer before doing any CameraUpdateFactory calls
         MapsInitializer.initialize(this.getActivity());
 
-        if (mSelectedCoordinates != null) {
-            moveCamera(mSelectedCoordinates);
-        }
-        else {
-            moveCamera(coordinate);
-        }
+//        if (mSelectedCoordinates != null) {
+//            moveCamera(mSelectedCoordinates);
+//        }
+//        else {
+//            moveCamera(coordinate);
+//        }
+//
+//        mSelectedCoordinates = null;
 
-        mSelectedCoordinates = null;
+        // ici faire le moveCamera avec mSelectedPosition
 
         for (LocatedPicture item : mLocatedPictureList) {
             LatLng itemCd = new LatLng(item.getLatitude(),item.getLongitude());
@@ -171,8 +173,8 @@ public class MapsFragment extends Fragment {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinate, MAP_CAMERA_ZOOM));
     }
 
-    public void setSelectedCoordinates(double lat, double lon) {
-        mSelectedCoordinates = new LatLng(lat, lon);
+    public void setSelectedPosition(int position) {
+        mSelectedPosition = position;
     }
 
 }

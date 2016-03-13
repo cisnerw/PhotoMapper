@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.epitech.william.photomapper.LocatedPictureAdapter;
 import com.epitech.william.photomapper.MainActivity;
 import com.epitech.william.photomapper.R;
 
@@ -27,7 +28,10 @@ public class LocatedPictureFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 2;
-    private OnListFragmentInteractionListener mListener;
+    private LocatedPictureAdapter mLocatedPictureAdapter;
+    private List<LocatedPicture> mLocatedPictureList;
+    private LocatedPictureAdapter.OnItemClickListener mListener;
+    private RecyclerView mRecyclerView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -66,26 +70,31 @@ public class LocatedPictureFragment extends Fragment {
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
+            mRecyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
+                mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+                mRecyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
-            List<LocatedPicture> pictures = DatabaseHandler.getInstance().getAllPictures();
+            mLocatedPictureList = DatabaseHandler.getInstance().getAllPictures();
 
-            recyclerView.setAdapter(new MyLocatedPictureRecyclerViewAdapter(pictures, mListener, getResources()));
+            setUpRecyclerView();
         }
         return view;
     }
 
+    private void setUpRecyclerView() {
+        mLocatedPictureAdapter = new LocatedPictureAdapter(mLocatedPictureList, getResources());
+        mLocatedPictureAdapter.setItemClickListener(mListener);
+        mRecyclerView.setAdapter(mLocatedPictureAdapter);
+    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
+        if (context instanceof LocatedPictureAdapter.OnItemClickListener) {
+            mListener = (LocatedPictureAdapter.OnItemClickListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
@@ -110,6 +119,6 @@ public class LocatedPictureFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(LocatedPicture item);
+        void onListFragmentInteraction(int position);
     }
 }
