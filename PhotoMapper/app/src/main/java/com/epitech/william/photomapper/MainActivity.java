@@ -174,14 +174,6 @@ public class MainActivity extends AppCompatActivity
         startActivity(Intent.createChooser(share, CHOOSER_WINDOW_TITLE));
     }
 
-    private void openGallery() {
-        Intent intent = new Intent();
-        intent.setAction(android.content.Intent.ACTION_VIEW);
-        intent.setType("image/*");
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
-
     private File createImageFile() throws IOException {
         // Create an image file name
         int nextid = DatabaseHandler.getInstance().getPicturesCount();
