@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +12,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.File;
+import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.epitech.paul.photomapper.BitmapHelper;
 import com.epitech.paul.photomapper.LocatedPicture;
 
 /**
@@ -85,7 +86,7 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
     private List<LocatedPicture> mList;
     private Resources mResources;
     private static OnItemClickListener itemClickListener = null;
-
+    private Map<LocatedPictureViewHolder, LocatedPictureLoadingTask> loadingTasks = new HashMap<LocatedPictureViewHolder, LocatedPictureLoadingTask>();
     public LocatedPictureAdapter(List<LocatedPicture> list, Resources resources) {
         mList = list;
         mResources = resources;
@@ -102,9 +103,16 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
 
     @Override
     public void onBindViewHolder(LocatedPictureViewHolder holder, int position) {
+        holder.vImageView.setImageBitmap(null);
         LocatedPicture locatedPicture = mList.get(position);
-        LocatedPictureLoadingTask loadingTask = new LocatedPictureLoadingTask();
-        loadingTask.execute(new LocatedPictureLoadingParams(locatedPicture, holder.vImageView, holder.vTextView));
+
+        if (loadingTasks.get(holder) != null) {
+            loadingTasks.get(holder).cancel(true);
+        }
+
+        LocatedPictureLoadingTask task = new LocatedPictureLoadingTask();
+        loadingTasks.put(holder, task);
+        task.execute(new LocatedPictureLoadingParams(locatedPicture, holder.vImageView, holder.vTextView));
 
 //        File imgFile = new File(locatedPicture.getPicturePath());
 //        if (imgFile.exists()) {
