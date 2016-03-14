@@ -64,9 +64,6 @@ public class LocatedPictureFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_locatedpicture_list, container, false);
 
-//        MainActivity mainActivity = (MainActivity) super.getActivity();
-//        mainActivity.gotoMap();
-
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
