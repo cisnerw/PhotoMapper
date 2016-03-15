@@ -2,6 +2,8 @@ package com.epitech.paul.photomapper;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,7 +24,7 @@ import java.util.List;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class LocatedPictureFragment extends Fragment {
+public class LocatedPictureFragment extends Fragment implements View.OnClickListener {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -32,6 +34,7 @@ public class LocatedPictureFragment extends Fragment {
     private List<LocatedPicture> mLocatedPictureList;
     private LocatedPictureAdapter.OnItemClickListener mListener;
     private RecyclerView mRecyclerView;
+    private boolean mDeleteMode;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -62,12 +65,17 @@ public class LocatedPictureFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_locatedpicture_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_locatedpicture, container, false);
+        
+        View listView = view.findViewById(R.id.list);
+
+        FloatingActionButton deleteButton = (FloatingActionButton) view.findViewById(R.id.fab_deleteMode);
+        deleteButton.setOnClickListener(this);
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            mRecyclerView = (RecyclerView) view;
+        if (listView instanceof RecyclerView) {
+            Context context = listView.getContext();
+            mRecyclerView = (RecyclerView) listView;
             if (mColumnCount <= 1) {
                 mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
@@ -79,6 +87,22 @@ public class LocatedPictureFragment extends Fragment {
             setUpRecyclerView();
         }
         return view;
+    }
+
+    public boolean isInDeleteMode() {
+        return mDeleteMode;
+    }
+
+    public void onClick(View v) {
+
+        if (mDeleteMode) {
+            // delete selected images
+        } else {
+            Snackbar.make(v, "Delete mode : select picture and click this button to delete them",
+                Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        }
+
+        mDeleteMode = !mDeleteMode;
     }
 
     private void setUpRecyclerView() {
