@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<com.epitech.paul.photomapper.AutofitRecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/list"
     android:name="com.epitech.paul.photomapper.LocatedPictureFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    app:layoutManager="LinearLayoutManager"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    app:layoutManager="GridLayoutManager"
+    android:numColumns="auto_fit"
+    android:columnWidth="@dimen/thumbnail_size"
     tools:context="com.epitech.paul.photomapper.LocatedPictureFragment"
-    tools:listitem="@layout/fragment_locatedpicture" />
+    tools:listitem="@layout/fragment_locatedpicture_item"
+    android:clickable="false" />

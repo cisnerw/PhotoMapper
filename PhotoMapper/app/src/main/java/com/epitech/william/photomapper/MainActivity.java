@@ -53,15 +53,6 @@ public class MainActivity extends AppCompatActivity
 
         new DatabaseHandler(this); // instanciate db singleton
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open,
@@ -176,14 +167,6 @@ public class MainActivity extends AppCompatActivity
         share.putExtra(Intent.EXTRA_TEXT, message);
 
         startActivity(Intent.createChooser(share, CHOOSER_WINDOW_TITLE));
-    }
-
-    private void openGallery() {
-        Intent intent = new Intent();
-        intent.setAction(android.content.Intent.ACTION_VIEW);
-        intent.setType("image/*");
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
     }
 
     private File createImageFile() throws IOException {
