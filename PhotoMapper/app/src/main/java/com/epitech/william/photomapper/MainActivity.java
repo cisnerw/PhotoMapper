@@ -1,17 +1,10 @@
 package com.epitech.william.photomapper;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -20,28 +13,27 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
-
 import com.epitech.paul.photomapper.DatabaseHandler;
-import com.epitech.paul.photomapper.LocatedPicture;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.LatLng;
+import com.facebook.appevents.AppEventsLogger;
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.epitech.paul.photomapper.LocatedPictureFragment;
-
-import java.io.File;
-import java.io.IOException;
+import com.facebook.FacebookSdk;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         LocatedPictureAdapter.OnItemClickListener {
 
+    private PictureCaptureHandler mPictureCaptureHandler;
     private Fragment mCurrentFragment = null;
-    private static final int TAKE_PICTURE = 1;
-    private static final String IMAGE_FORMAT = ".jpg";
-    private static final String CHOOSER_WINDOW_TITLE = "";
-    private static final String IMAGE_NAME = "image_";
-    private static String mCurrentPhotoPath;
-    private static String mCurrentFileName;
+    private FragmentManager mFragmentManager;
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +41,14 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        LocationHandler.getInstance().init(this);
+        FacebookSdk.sdkInitialize(this);
 
-        new DatabaseHandler(this); // instanciate db singleton
+        mPictureCaptureHandler = new PictureCaptureHandler(this);
+        mFragmentManager = getSupportFragmentManager();
+
+        new LocationHandler(this);  // instanciate location singleton
+        new DatabaseHandler(this);  // instanciate db singleton
+        new SocialHandler(this);    // instanciate social singleton
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -62,6 +59,10 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
@@ -69,9 +70,8 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        }else if (mCurrentFragment != null) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction().remove(mCurrentFragment).commit();
+        } else if (mCurrentFragment != null) {
+            mFragmentManager.beginTransaction().remove(mCurrentFragment).commit();
             mCurrentFragment = null;
         } else {
             super.onBackPressed();
@@ -100,7 +100,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -113,21 +112,18 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void gotoMap(int position)
-    {
+    public void gotoMap(int position) {
         MapsFragment fragment = (MapsFragment) getFragmentFromMenuId(R.id.nav_map);
         fragment.setSelectedPosition(position);
         changeCurrentFragment(fragment);
     }
 
     private void changeCurrentFragment(Fragment fragment) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-
         if (mCurrentFragment != null) {
-            fragmentManager.beginTransaction().remove(mCurrentFragment).commit();
+            mFragmentManager.beginTransaction().remove(mCurrentFragment).commit();
         }
         if (fragment != null) {
-            fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
+            mFragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
             mCurrentFragment = fragment;
         }
     }
@@ -136,95 +132,95 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = null;
         Class fragmentClass;
         if (id == R.id.nav_camera) {
-            takePicture();
+            mPictureCaptureHandler.takePicture();
         } else if (id == R.id.nav_gallery) {
             //openGallery();
             fragmentClass = LocatedPictureFragment.class;
             try {
                 fragment = (Fragment) fragmentClass.newInstance();
             } catch (Exception e) {
+                e.printStackTrace();
             }
         } else if (id == R.id.nav_map) {
             fragmentClass = MapsFragment.class;
             try {
                 fragment = (Fragment) fragmentClass.newInstance();
             } catch (Exception e) {
+                e.printStackTrace();
             }
-        } else if (id == R.id.nav_manage) {
-
+        } else if (id == R.id.nav_home && mCurrentFragment != null) {
+            mFragmentManager.beginTransaction().remove(mCurrentFragment).commit();
+            mCurrentFragment = null;
         } else if (id == R.id.nav_share) {
-            share();
+            SocialHandler.getInstance().share();
         } else if (id == R.id.nav_send) {
-
+            SocialHandler.getInstance().send();
         }
         return fragment;
-    }
-
-    private void share() {
-        String message = "Text I want to share.";
-        Intent share = new Intent(Intent.ACTION_SEND);
-        share.setType("text/plain");
-        share.putExtra(Intent.EXTRA_TEXT, message);
-
-        startActivity(Intent.createChooser(share, CHOOSER_WINDOW_TITLE));
-    }
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        int nextid = DatabaseHandler.getInstance().getPicturesCount();
-        mCurrentFileName = IMAGE_NAME + String.valueOf(nextid);
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                mCurrentFileName,   /* prefix */
-                IMAGE_FORMAT,       /* suffix */
-                storageDir          /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-
-    private void takePicture() {
-        //TODO: get the nextId from DataBase manager.
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File photoFile = null;
-        try {
-            photoFile = createImageFile();
-        } catch (IOException ex) {
-            // Error occurred while creating the File
-        }
-        if (photoFile != null) {
-            // Handle the camera action
-            // create intent with ACTION_IMAGE_CAPTURE action
-            intent.putExtra(MediaStore.EXTRA_OUTPUT,
-                    Uri.fromFile(photoFile));
-            // start camera activity
-            startActivityForResult(intent, TAKE_PICTURE);
-        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
-        if (requestCode == TAKE_PICTURE && resultCode == RESULT_OK) {
-            File imgFile = new File(mCurrentPhotoPath);
-            //TODO: save the currentPhotoPath and the coordinate in database.
-            LatLng cd = LocationHandler.getInstance().getCoordinate();
-            if (imgFile.exists()) {
-                LocatedPicture newPicture = new LocatedPicture(
-                        mCurrentPhotoPath,
-                        mCurrentFileName,
-                        null,
-                        cd.longitude,
-                        cd.latitude);
-                DatabaseHandler.getInstance().addPicture(newPicture);
-            }
+        SocialHandler.getInstance().onActivityResult(requestCode,resultCode,intent);
+        if (requestCode == PictureCaptureHandler.TAKE_PICTURE && resultCode == RESULT_OK) {
+            mPictureCaptureHandler.onPictureResult();
         }
     }
-    public void onItemClick(int position){
+
+    public void onItemClick(int position) {
         gotoMap(position);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.epitech.william.photomapper/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.epitech.william.photomapper/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppEventsLogger.activateApp(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppEventsLogger.deactivateApp(this);
+    }
 }

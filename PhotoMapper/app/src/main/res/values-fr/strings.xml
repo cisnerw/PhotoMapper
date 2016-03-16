@@ -8,4 +8,7 @@
     <string name="menu_title">Communiquer</string>
     <string name="menu_share">Partager</string>
     <string name="menu_send">Envoyer</string>
+    <string name="menu_home">Accueil</string>
+    <string name="content_description">PhotoMapper est une application permettant à un utilisateur de localiser les photo qu\'il prend via cette application.</string>
+    <string name="msg_send">Viens tester photomapper, une nouvelle application qui te permet de localiser tes photos. </string>
 </resources>

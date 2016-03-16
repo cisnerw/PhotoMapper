@@ -17,7 +17,7 @@ import com.google.android.gms.maps.model.LatLng;
  * Created by willi_000 on 22/02/2016.
  */
 public class LocationHandler {
-    private static final LocationHandler instance = new LocationHandler();
+    private static LocationHandler instance = null;
 
     private static final long LOCATION_REFRESH_TIME = 1000;
     private static final float LOCATION_REFRESH_DISTANCE = 100;
@@ -50,11 +50,7 @@ public class LocationHandler {
         }
     };
 
-    public LocationHandler() {
-
-    }
-
-    public void init(Context context) {
+    public LocationHandler(Context context) {
         mLocationManager = (LocationManager) context.getSystemService(context.LOCATION_SERVICE);
         try {
             Location location = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -71,6 +67,7 @@ public class LocationHandler {
         } finally {
 
         }
+        instance = this;
     }
 
     public static LocationHandler getInstance() {
