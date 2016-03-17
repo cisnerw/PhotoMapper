@@ -1,19 +1,25 @@
 package com.epitech.william.photomapper;
 
+import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
+import com.epitech.paul.photomapper.AutofitRecyclerView;
 import com.epitech.paul.photomapper.DatabaseHandler;
+import com.epitech.paul.photomapper.GalleryController;
+import com.epitech.paul.photomapper.GalleryView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -35,8 +41,8 @@ public class MapsFragment extends Fragment {
 
     private List<LocatedPicture> mLocatedPictureList;
     private LocatedPictureAdapter mLocatedPictureAdapter;
-    private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLinearLayoutManager;
+    private AutofitRecyclerView mRecyclerView;
+    private RecyclerView.LayoutManager mLayoutManager;
     private FragmentActivity mFragmentActivity;
     private LinearLayout mLinearLayout;
     private MapView mMapView;
@@ -45,6 +51,19 @@ public class MapsFragment extends Fragment {
     private View selectedImage = null;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private int mSelectedPosition = -1;
+    private MapsController mMapsController;
+    private GalleryView mGalleryView;
+
+    public MapsFragment() {
+        upLocatedPictureList();
+        mGalleryView = new GalleryView(mLocatedPictureList);
+    }
+
+    public void setController(MapsController controller) {
+        mMapsController = controller;
+        mGalleryView.setDeleteButtonClickedListener(mMapsController);
+        mGalleryView.setListItemClickedListener(mMapsController);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -54,23 +73,35 @@ public class MapsFragment extends Fragment {
         mLinearLayout = (LinearLayout) inflater.inflate(R.layout.fragment_maps, container, false);
         mMapView = (MapView) mLinearLayout.findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);
-        mRecyclerView = (RecyclerView) mLinearLayout.findViewById(R.id.photoList);
-        mLinearLayoutManager = new LinearLayoutManager(mFragmentActivity);
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            mLinearLayoutManager.setOrientation(LinearLayout.HORIZONTAL);
-        } else {
-            mLinearLayoutManager.setOrientation(LinearLayout.VERTICAL);
-        }
-        mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        mGalleryView.onCreateInflatedView(mLinearLayout.findViewById(R.id.fragment_locatedpicture_layout), container.getResources());
+        mRecyclerView = mGalleryView.getRecyclerView();
+        mLayoutManager = mRecyclerView.getLayoutManager();
+        mGalleryView.setUpRecyclerView(getResources());
+        mMapsController.setRecyclerView(mGalleryView.getRecyclerView());
+        mMapsController.setAdapter(mGalleryView.getLocatedPictureAdapter());
+
+//        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+//            mLinearLayoutManager.setOrientation(LinearLayout.HORIZONTAL);
+//        } else {
+//            mLinearLayoutManager.setOrientation(LinearLayout.VERTICAL);
+//        }
         markers = new ArrayList<>();
 
-        upLocatedPictureList();
 
-        setUpRecyclerView();
         setUpMapIfNeeded();
 
         return mLinearLayout;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
     }
 
     @Override
@@ -96,19 +127,7 @@ public class MapsFragment extends Fragment {
     ** update picture list from local database
      */
     private void upLocatedPictureList() {
-        //TODO: get the picture list from the database
         mLocatedPictureList = DatabaseHandler.getInstance().getAllPictures();
-    }
-
-    private void setUpRecyclerView() {
-        mLocatedPictureAdapter = new LocatedPictureAdapter(mLocatedPictureList, getResources());
-        mLocatedPictureAdapter.setItemClickListener(new LocatedPictureAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
-                changeSelectedMarker(position);
-            }
-        });
-        mRecyclerView.setAdapter(mLocatedPictureAdapter);
     }
 
     private void setUpMapIfNeeded() {
@@ -122,7 +141,7 @@ public class MapsFragment extends Fragment {
         }
     }
 
-    private void changeSelectedMarker(int position) {
+    public void changeSelectedMarker(int position) {
         RecyclerView.ViewHolder holder = mRecyclerView.findViewHolderForAdapterPosition(position);
         if (holder == null) {
             postDelayedMarkerChange(position);
@@ -168,7 +187,7 @@ public class MapsFragment extends Fragment {
     private void postDelayedMarkerChange(final int position) {
         Handler handler = new Handler();
 
-        mLinearLayoutManager.scrollToPositionWithOffset(position, 0);
+        mLayoutManager.scrollToPosition(position);
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {

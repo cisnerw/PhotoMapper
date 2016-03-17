@@ -47,6 +47,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         String CREATE_PICTURES_TABLE = "CREATE TABLE " + TABLE_PICTURES + "("
                 + KEY_ID + " INTEGER PRIMARY KEY,"
                 + KEY_TITLE + " TEXT,"
+                + KEY_DATE + " INTEGER,"
                 + KEY_ADDRESS + " TEXT,"
                 + KEY_LONGITUDE + " DOUBLE,"
                 + KEY_LATITUDE + " DOUBLE,"
@@ -68,10 +69,15 @@ public class DatabaseHandler extends SQLiteOpenHelper
     // Adding new picture
     public void addPicture(LocatedPicture locatedPicture)
     {
+        if (locatedPicture == null) {
+            return;
+        }
+
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(KEY_TITLE, locatedPicture.getTitle());
+        values.put(KEY_DATE, locatedPicture.getDate().getTime());
         values.put(KEY_ADDRESS, locatedPicture.getAddress());
         values.put(KEY_LONGITUDE, locatedPicture.getLongitude());
         values.put(KEY_LATITUDE, locatedPicture.getLatitude());
@@ -92,26 +98,27 @@ public class DatabaseHandler extends SQLiteOpenHelper
                         {
                                 KEY_ID,         // 0
                                 KEY_TITLE,      // 1
-                                KEY_ADDRESS,    // 2
-                                KEY_LONGITUDE,  // 3
-                                KEY_LATITUDE,   // 4
-                                KEY_IMAGE_PATH  // 5
+                                KEY_DATE,       // 2
+                                KEY_ADDRESS,    // 3
+                                KEY_LONGITUDE,  // 4
+                                KEY_LATITUDE,   // 5
+                                KEY_IMAGE_PATH  // 6
                         },
                 KEY_ID + "=?",
                 new String[]{String.valueOf(id)},
                 null, null, null, null);
-
+        LocatedPicture locatedPicture = null;
         if (cursor != null)
         {
             cursor.moveToFirst();
+            locatedPicture = new LocatedPicture(
+                    cursor.getString(6),
+                    cursor.getString(1),
+                    cursor.getString(3),
+                    Double.parseDouble(cursor.getString(4)),
+                    Double.parseDouble(cursor.getString(5)));
         }
 
-        LocatedPicture locatedPicture = new LocatedPicture(
-                cursor.getString(5),
-                cursor.getString(1),
-                cursor.getString(2),
-                Double.parseDouble(cursor.getString(3)),
-                Double.parseDouble(cursor.getString(4)));
         return locatedPicture;
     }
 
@@ -129,13 +136,13 @@ public class DatabaseHandler extends SQLiteOpenHelper
             do {
 
                 LocatedPicture locatedPicture = new LocatedPicture(
-                        cursor.getString(5),
+                        cursor.getString(6),
                         cursor.getString(1),
-                        cursor.getString(2),
-                        Double.parseDouble(cursor.getString(3)),
-                        Double.parseDouble(cursor.getString(4)));
+                        cursor.getString(3),
+                        Double.parseDouble(cursor.getString(4)),
+                        Double.parseDouble(cursor.getString(5)));
 
-                File imgFile = new File(cursor.getString(5));
+                File imgFile = new File(cursor.getString(6));
                 if (imgFile.exists() == false)
                 {
                     deletePicture(locatedPicture);
@@ -165,6 +172,9 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
     public int updatePicture(LocatedPicture locatedPicture)
     {
+        if (locatedPicture == null) {
+            return -1;
+        }
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -181,9 +191,11 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
     public void deletePicture(LocatedPicture locatedPicture)
     {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_PICTURES, KEY_IMAGE_PATH + " = ?",
-                new String[] { String.valueOf(locatedPicture.getPicturePath()) });
-        db.close();
+        if (locatedPicture != null) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            db.delete(TABLE_PICTURES, KEY_IMAGE_PATH + " = ?",
+                    new String[]{String.valueOf(locatedPicture.getPicturePath())});
+            db.close();
+        }
     }
 }

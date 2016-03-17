@@ -1,18 +1,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:context=".MainActivity" android:orientation="vertical">
-    <com.google.android.gms.maps.MapView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/map"
-        android:clickable="true"
-        android:apiKey="@string/google_maps_key"
-        android:layout_weight="1"/>
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/photoList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="3"
-        android:background="@color/colorAccent"/>
-</LinearLayout>
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity" android:orientation="vertical">
 
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:apiKey="@string/google_maps_key" />
+
+    <include layout="@layout/fragment_locatedpicture"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/picture_layout_size"/>
+
+</LinearLayout>

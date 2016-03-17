@@ -21,19 +21,22 @@ public class LocatedPicture
         If @param address is not null it is used to compute longitude and latitude.
         Otherwise @param longitude and @param latitude are used.
      */
-    public LocatedPicture(String picturePath, String title, String address, double lon, double lat)
+    public LocatedPicture(String picturePath, String title, String address, double lon, double lat, long date)
     {
         this.picturePath = picturePath;
         this.title = title;
         this.address = address;
         longitude = lon;
         latitude = lat;
-        date = new Date();
+        this.date = new Date(date);
 
-        if (address != null)
-        {
+        if (address != null) {
             TranslateAddressToCoords();
         }
+    }
+
+    public LocatedPicture(String picturePath, String title, String address, double lon, double lat) {
+        this(picturePath, title, address, lon, lat, (new Date()).getTime());
     }
 
     private void TranslateAddressToCoords()

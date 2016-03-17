@@ -12,11 +12,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.File;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.epitech.paul.photomapper.DatabaseHandler;
+import com.epitech.paul.photomapper.GalleryFragment;
 import com.epitech.paul.photomapper.LocatedPicture;
 
 /**
@@ -48,9 +49,7 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
         }
 
         @Override
-        protected void onProgressUpdate(Void... result){
-            super.onProgressUpdate(result);
-        }
+        protected void onProgressUpdate(Void... result){ super.onProgressUpdate(result); }
 
         @Override
         protected Bitmap doInBackground(LocatedPictureLoadingParams... arg0) {
@@ -63,7 +62,7 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
                 Bitmap bitmap = BitmapFactory.decodeFile(locatedPicture.getPicturePath(), options);
 
                 int width = options.outWidth;
-                int dimension = (int) mResources.getDimension(R.dimen.thumbnail_size);
+                int dimension = (int) mResources.getDimension(R.dimen.picture_layout_size);
                 options.inJustDecodeBounds = false;
                 options.inSampleSize = Math.max(1, width / dimension);
                 return BitmapFactory.decodeFile(locatedPicture.getPicturePath(), options);
@@ -85,7 +84,7 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
 
     private List<LocatedPicture> mList;
     private Resources mResources;
-    private static OnItemClickListener itemClickListener = null;
+    private static GalleryFragment.OnListItemClickedListener itemClickListener = null;
     private Map<LocatedPictureViewHolder, LocatedPictureLoadingTask> loadingTasks = new HashMap<LocatedPictureViewHolder, LocatedPictureLoadingTask>();
     public LocatedPictureAdapter(List<LocatedPicture> list, Resources resources) {
         mList = list;
@@ -96,19 +95,29 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
     public LocatedPictureViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.
                 from(parent.getContext()).
-                inflate(R.layout.item_layout, parent, false);
+                inflate(R.layout.fragment_locatedpicture_item, parent, false);
 
         return new LocatedPictureViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(LocatedPictureViewHolder holder, int position) {
-        holder.vImageView.setImageBitmap(null);
-        LocatedPicture locatedPicture = mList.get(position);
-
         if (loadingTasks.get(holder) != null) {
             loadingTasks.get(holder).cancel(true);
         }
+
+        ViewGroup.LayoutParams params = holder.vImageView.getLayoutParams();
+        int itemLayoutSize = (int)mResources.getDimension(R.dimen.picture_size);
+        params.width = itemLayoutSize;
+        params.height = itemLayoutSize;
+        holder.vImageView.setLayoutParams(params);
+//        holder.vImageView.setMaxWidth(itemLayoutSize);
+//        holder.vImageView.setMaxHeight(itemLayoutSize);
+
+        holder.vImageView.setImageBitmap(null);
+        LocatedPicture locatedPicture = mList.get(position);
+        holder.vTextView.setText(locatedPicture.getTitle());
+        holder.locatedPicture = locatedPicture;
 
         LocatedPictureLoadingTask task = new LocatedPictureLoadingTask();
         loadingTasks.put(holder, task);
@@ -130,7 +139,13 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
 //        }
     }
 
-    public void setItemClickListener(OnItemClickListener listener) {
+    public void removeViewAt(int adapterPosition) {
+        notifyItemRemoved(adapterPosition);
+        mList.remove(adapterPosition);
+        notifyItemRangeChanged(adapterPosition, getItemCount());
+    }
+
+    public void setItemClickListener(GalleryFragment.OnListItemClickedListener listener) {
         itemClickListener = listener;
     }
 
@@ -139,26 +154,24 @@ public class LocatedPictureAdapter extends RecyclerView.Adapter<LocatedPictureAd
         return mList.size();
     }
 
-    public static class LocatedPictureViewHolder extends RecyclerView.ViewHolder
-    implements View.OnClickListener{
+    public static class LocatedPictureViewHolder
+        extends RecyclerView.ViewHolder
+        implements View.OnClickListener {
 
         protected ImageView vImageView;
         protected TextView vTextView;
+        protected LocatedPicture locatedPicture;
         public LocatedPictureViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
-            vImageView = (ImageView) itemView.findViewById(R.id.item_img);
+            vImageView = (ImageView) itemView.findViewById(R.id.item_picture);
             vTextView = (TextView) itemView.findViewById(R.id.item_title);
         }
 
         @Override
         public void onClick(View view) {
             if (itemClickListener != null)
-                itemClickListener.onItemClick(getAdapterPosition());
+                itemClickListener.onListItemClicked(this, locatedPicture);
         }
-    }
-
-    public interface OnItemClickListener {
-        void onItemClick(int position);
     }
 }

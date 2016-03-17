@@ -1,17 +1,12 @@
 package com.epitech.william.photomapper;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -20,20 +15,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 
 import com.epitech.paul.photomapper.DatabaseHandler;
+import com.epitech.paul.photomapper.GalleryController;
 import com.epitech.paul.photomapper.LocatedPicture;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.epitech.paul.photomapper.LocatedPictureFragment;
+import com.epitech.paul.photomapper.GalleryFragment;
 
 import java.io.File;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        LocatedPictureAdapter.OnItemClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener
+//        , LocatedPictureAdapter.OnItemClickListener
+{
 
     private Fragment mCurrentFragment = null;
     private static final int TAKE_PICTURE = 1;
@@ -139,15 +134,19 @@ public class MainActivity extends AppCompatActivity
             takePicture();
         } else if (id == R.id.nav_gallery) {
             //openGallery();
-            fragmentClass = LocatedPictureFragment.class;
+            fragmentClass = GalleryFragment.class;
             try {
-                fragment = (Fragment) fragmentClass.newInstance();
+                GalleryFragment galleryFragment = (GalleryFragment) fragmentClass.newInstance();
+                galleryFragment.setController(new GalleryController(this));
+                fragment = galleryFragment;
             } catch (Exception e) {
             }
         } else if (id == R.id.nav_map) {
             fragmentClass = MapsFragment.class;
             try {
-                fragment = (Fragment) fragmentClass.newInstance();
+                MapsFragment mapsFragment = (MapsFragment) fragmentClass.newInstance();
+                mapsFragment.setController(new MapsController(this, mapsFragment));
+                fragment = mapsFragment;
             } catch (Exception e) {
             }
         } else if (id == R.id.nav_manage) {
@@ -223,8 +222,4 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-    public void onItemClick(int position){
-        gotoMap(position);
-    }
-
 }
