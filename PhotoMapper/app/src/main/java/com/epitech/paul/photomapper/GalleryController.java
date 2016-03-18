@@ -14,6 +14,9 @@ public class GalleryController implements
         GalleryFragment.OnListItemClickedListener,
         GalleryFragment.OnDeleteButtonClickedListener {
 
+    private static final String MMOD_TITLE = "map_mode";
+    private static final String PACKAGE = "com.epitech.william.photomapper";
+    private static final String DMOD_TITLE = "delete_mode";
     protected boolean mDeleteMode = false;
     protected boolean mCanGotoMap = true;
     private MainActivity mMainActivity;
@@ -47,13 +50,21 @@ public class GalleryController implements
     @Override
     public void onDeleteButtonClicked(View v) {
         mDeleteMode = !mDeleteMode;
+        String title;
+
         if (!mDeleteMode) {
-            Snackbar.make(v, "Map mode : select a picture to show it on map",
-                    Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            v.setSelected(false);
+            title = MMOD_TITLE;
         } else {
-            Snackbar.make(v, "Delete mode : select a picture to delete it",
-                    Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            v.setSelected(true);
+            title = DMOD_TITLE;
         }
+        int id = mMainActivity.getResources().getIdentifier(
+                title,
+                "string",
+                PACKAGE);
+        String message = mMainActivity.getResources().getString(id);
+        Snackbar.make(v, message,Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 
 }

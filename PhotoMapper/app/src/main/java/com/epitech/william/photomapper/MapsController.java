@@ -22,9 +22,10 @@ public class MapsController extends GalleryController {
 
     @Override
     public boolean onListItemClicked(RecyclerView.ViewHolder viewHolder, LocatedPicture locatedPicture) {
+        int position = viewHolder.getAdapterPosition();
         if (super.onListItemClicked(viewHolder, locatedPicture)) {
             if (mDeleteMode) {
-                // todo delete marker
+                mMapsFragment.deleteMarker(position);
             } else {
                 mMapsFragment.changeSelectedMarker(viewHolder.getAdapterPosition());
             }

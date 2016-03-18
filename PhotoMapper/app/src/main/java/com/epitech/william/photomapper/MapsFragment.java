@@ -155,7 +155,7 @@ public class MapsFragment extends Fragment {
             selectedImage.setSelected(false);
         if (selectedMarker != marker) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), MAP_CAMERA_ZOOM));
-            marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+            marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
             view.setSelected(true);
             selectedImage = view;
             selectedMarker = marker;
@@ -182,6 +182,12 @@ public class MapsFragment extends Fragment {
         if (mSelectedPosition >= 0) {
             postDelayedMarkerChange(mSelectedPosition);
         }
+    }
+
+    public void deleteMarker(int position) {
+        Marker item = markers.get(position);
+        markers.remove(position);
+        item.remove();
     }
 
     private void postDelayedMarkerChange(final int position) {

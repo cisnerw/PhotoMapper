@@ -16,6 +16,8 @@
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
     <string name="menu_home">Home</string>
+    <string name="map_mode">Map mode : select a picture to show it on map</string>
+    <string name="delete_mode">Delete mode : select a picture to delete it.</string>
     <string name="content_description">PhotoMapper is an application that allows a user to locate the photo he takes with this application.</string>
     <string name="msg_send">Come test PhotoMapper, a new application that allows you to locate your photos. </string>
 </resources>
