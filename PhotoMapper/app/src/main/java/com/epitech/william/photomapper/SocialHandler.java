@@ -2,11 +2,18 @@ package com.epitech.william.photomapper;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.util.Base64;
+import android.util.Log;
 
 import com.facebook.CallbackManager;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by willi_000 on 16/03/2016.
@@ -44,7 +51,13 @@ public class SocialHandler {
                     .setContentUrl(Uri.parse(CONTENT_URL))
                     .build();
 
-            shareDialog.show(linkContent);
+            if (shareDialog != null && linkContent != null) {
+                try {
+                    shareDialog.show(linkContent);
+                } catch (IllegalStateException e) {
+                    Log.d("photomapper", "tset");
+                }
+            }
         }
     }
 
@@ -68,26 +81,4 @@ public class SocialHandler {
 
         mActivity.startActivity(Intent.createChooser(share, CHOOSER_WINDOW_TITLE));
     }
-
-/*    private void printHashKey() {
-        PackageInfo packageInfo;
-        String key;
-
-        String packageName = getApplicationContext().getPackageName();
-        try {
-            packageInfo = getPackageManager().getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
-            Log.e("Packege name = ", packageName);
-
-            for (android.content.pm.Signature signature : packageInfo.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                key = new String(Base64.encode(md.digest(), 0));
-                Log.e("Key Hashes = ", key);
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-    }*/
 }
